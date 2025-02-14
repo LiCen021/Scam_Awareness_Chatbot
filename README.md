@@ -7,13 +7,16 @@ A RAG-based chatbot that uses Together AI's LLaMA model to provide information a
 ```
 .
 ├── Data/
-│   ├── scam_alerts.csv         # Original scam alerts data
+│   ├── Extra_Scam_Knowledge/  # Additional scam information and resources
+│   ├── bank_scam_alert_scrapper.py  # Script to scrape scam alerts
+│   ├── embedding.py           # Script to generate embeddings
+│   ├── scam_alerts.csv       # Original scam alerts data
 │   └── scam_alerts_embeddings.csv  # Generated embeddings
-├── templates/                  # HTML templates for the web interface
-│   └── index.html             # Chat interface template
-├── app.py                     # Main application (Flask + RAG implementation)
-├── embedding.py               # Script to generate embeddings
-└── requirements.txt          # Project dependencies
+├── templates/                 # HTML templates for the web interface
+│   └── index.html            # Chat interface template
+├── app.py                    # Main application (Flask + RAG implementation)
+├── requirements.txt          # Project dependencies
+└── README.md                 # This file
 ```
 
 ## Setup
@@ -35,7 +38,7 @@ export TOGETHER_API_KEY='your_api_key_here'
 1. First, generate embeddings for the scam alerts database:
 
 ```bash
-python embedding.py
+python Data/embedding.py
 ```
 
 2. Start the web application:
