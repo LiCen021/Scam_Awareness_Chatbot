@@ -15,6 +15,7 @@ A RAG-based chatbot that uses Together AI's LLaMA model to provide information a
 ├── templates/                 # HTML templates for the web interface
 │   └── index.html            # Chat interface template
 ├── app.py                    # Main application (Flask + RAG implementation)
+├── Procfile                  # Heroku deployment configuration
 ├── requirements.txt          # Project dependencies
 └── README.md                 # This file
 ```
@@ -50,6 +51,36 @@ python app.py
 Then open your browser and navigate to: http://localhost:5000
 
 3. Interact with the chatbot through the web interface.
+
+## Heroku Deployment
+
+1. Make sure you have the [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) installed.
+
+2. Login to Heroku:
+
+```bash
+heroku login
+```
+
+3. Create a new Heroku app:
+
+```bash
+heroku create your-app-name
+```
+
+4. Set your Together AI API key as a config var:
+
+```bash
+heroku config:set TOGETHER_API_KEY='your_api_key_here'
+```
+
+5. Deploy to Heroku:
+
+```bash
+git push heroku main
+```
+
+The application will be available at: https://your-app-name.herokuapp.com
 
 ## Features
 
