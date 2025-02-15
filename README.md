@@ -20,6 +20,36 @@ A RAG-based chatbot that uses Together AI's LLaMA model to provide information a
 └── README.md                 # This file
 ```
 
+## Demo
+
+Below is a screenshot of the chatbot interface in action, demonstrating how it provides scam-related information and advice:
+
+![Scam Alert Chatbot Demo](Demo.png)
+
+## Components
+
+The project consists of three main components:
+
+1. **Web Scraper** (`Data/bank_scam_alert_scrapper.py`):
+
+   - Python script that scrapes scam alerts from bank websites
+   - Collects detailed information about various types of scams
+   - Saves the scraped data into `scam_alerts.csv`
+
+2. **Embedding Generator** (`Data/embedding.py`):
+
+   - Processes the scam alerts from `scam_alerts.csv`
+   - Uses Together AI's m2-bert-80M-2k-retrieval model to generate embeddings
+   - Creates `scam_alerts_embeddings.csv` for efficient similarity search in RAG
+
+3. **Main Application** (`app.py`):
+   - Implements the RAG (Retrieval-Augmented Generation) system
+   - Uses embeddings to find relevant scam alerts based on user queries
+   - Incorporates additional context from `Extra_Scam_Knowledge/extra_scam_related_knowledge.txt`
+   - Combines both RAG results and extra knowledge for comprehensive responses
+   - Passes retrieved context to LLaMA 3.3 70B model for generating informed responses
+   - Provides a Flask web interface for user interaction
+
 ## Setup
 
 1. Install the required dependencies:
@@ -87,7 +117,8 @@ The application will be available at: https://your-app-name.herokuapp.com
 - Uses Together AI's m2-bert-80M-2k-retrieval model for embeddings
 - Implements Retrieval-Augmented Generation (RAG) using LLaMA 3.3 70B
 - Finds the 5 most relevant scam alerts for each query
-- Provides context-aware responses based on the scam database
+- Enhances responses with additional context from curated scam knowledge base
+- Provides context-aware responses based on both the scam database and expert knowledge
 - Modern web interface with real-time chat functionality
 
 ## Note

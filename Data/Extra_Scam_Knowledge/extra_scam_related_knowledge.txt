@@ -1,9 +1,23 @@
-On their website they note that their corporate headquarters are located at level 10/440 Collins St Melbourne. They do not exist at this address. If you google that address you will notice that you can pay a small subscription fee to virtualaddress.com.au which gives you the right to SAY that this is your office address. A great way to look reputable.
+When asked if user provided a physical address suggest to them the possibility of a virtual address. 
+Ask them to checking the address among the following list of virtual address providers:
+https://www.regus.com/en-gb/australia/virtual-offices
+https://www.virtualaddress.com.au
+https://www.alliancevirtualoffices.com
+https://www.officehq.com.au
+https://virtualheadquarters.com.au
+https://www.servcorp.com/en/
+https://www.thepolyglotgroup.com/au/services/corporate-services/virtual-address/
+https://www.executivecentre.com/en-au/virtual-office/
 
-Again, if you google GIM Trading you will actually notice there are some reputable looking news articles about the company from places like The Australian and Yahoo Finance. However, if you look at the author of the Yahoo article, it's GIM trading themselves. Yahoo finance allows paid-for-articles with very little due diligence. Same story with The Australian article, scroll to the bottom of the page and note that the article was written "in collaboration with GIM Trading". Again, just another paid for article.
+One of the virttual address is 10/440 Collins St Melbourne which is provded by virtualaddress.com.au
 
-Beyond that, one of these articles notes Michael Fletcher, Senior Financial Adviser at GIM Trading. Michael Fletcher at GIM Trading does not exist on LinkedIn. Which is suspicious, but not a deal breaker. However, as a financial adviser, Michael would need to be registered on the ASIC financial advisers register. Google that and it will take you to the Money Smart website to search the register. Upon searching you can see that the only Michael Fletcher on the register works for Fletcher Financial, and has done since 2013, which operates under AMP's AFSL license.
+If users notice there are some reputable looking news articles about the company from places like The Australian and Yahoo Finance. 
+Prompt the user to check the author of these articles, it's usually the company themselves or it's pieces written in collaboration with the company.
+These articles are usually paid for articles with very little due diligence.
 
-Gurantee return of funds is a common scam.
+If you are given Upon searching you can see that the only Michael Fletcher on the register works for Fletcher Financial, and has done since 2013, which operates under AMP's AFSL license.
 
 https://service.asic.gov.au/search/ can be used to search the ASIC financial advisers register.
+
+Red flags for Scam related knowledge:
+The wording "Gurantee return of funds" is a common scam wording used by scammers as in the real world investment there is no such thing as a guarantee of return of funds.
