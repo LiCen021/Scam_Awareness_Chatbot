@@ -28,7 +28,7 @@ Below is a screenshot of the chatbot interface in action, demonstrating how it p
 
 ## Components
 
-The project consists of three main components:
+The project consists of several main components:
 
 1. **Web Scraper** (`Data/bank_scam_alert_scrapper.py`):
 
@@ -42,7 +42,21 @@ The project consists of three main components:
    - Uses Together AI's m2-bert-80M-2k-retrieval model to generate embeddings
    - Creates `scam_alerts_embeddings.csv` for efficient similarity search in RAG
 
-3. **Main Application** (`app.py`):
+3. **Intelligent Routing Agent** (`app.py`):
+
+   - Analyzes user queries to determine their intent
+   - Uses LLM to detect if a specific company is mentioned
+   - Routes company-specific queries to the company information handler
+   - Routes general scam pattern queries to the situation analysis handler
+   - Ensures appropriate context and prompting for each query type
+
+4. **Boilerplate Response System** (`app.py`):
+
+   - Provides immediate predefined responses for common user queries
+   - Improves response time for frequently asked questions
+   - Guides users to provide specific information (e.g., company names) when needed
+
+5. **Main Application** (`app.py`):
    - Implements the RAG (Retrieval-Augmented Generation) system
    - Uses embeddings to find relevant scam alerts based on user queries
    - Incorporates additional context from `Extra_Scam_Knowledge/extra_scam_related_knowledge.txt`
@@ -114,12 +128,32 @@ The application will be available at: https://your-app-name.herokuapp.com
 
 ## Features
 
-- Uses Together AI's m2-bert-80M-2k-retrieval model for embeddings
-- Implements Retrieval-Augmented Generation (RAG) using LLaMA 3.3 70B
-- Finds the 5 most relevant scam alerts for each query
-- Enhances responses with additional context from curated scam knowledge base
-- Provides context-aware responses based on both the scam database and expert knowledge
-- Modern web interface with real-time chat functionality
+- **Intelligent Query Routing**:
+
+  - Automatically detects if users are asking about specific companies
+  - Routes company queries to specialized handler with company-specific context
+  - Routes general scam pattern queries to situation analysis handler
+  - Uses LLM-based detection for accurate query classification
+
+- **Boilerplate Response System**:
+
+  - Provides immediate responses for common queries
+  - Guides users to provide specific information when needed
+  - Reduces response time for frequently asked questions
+
+- **Enhanced User Interface**:
+
+  - Interactive prompt bubbles for common questions
+  - Color-coded messages (blue for user, light gray for bot)
+  - Conversation history saving functionality
+  - Reset conversation option
+
+- **RAG Implementation**:
+  - Uses Together AI's m2-bert-80M-2k-retrieval model for embeddings
+  - Implements Retrieval-Augmented Generation using LLaMA 3.3 70B
+  - Finds the 5 most relevant scam alerts for each query
+  - Enhances responses with additional context from curated scam knowledge base
+  - Provides context-aware responses based on both the scam database and expert knowledge
 
 ## Note
 

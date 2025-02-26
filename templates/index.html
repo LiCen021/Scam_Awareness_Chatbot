@@ -13,6 +13,7 @@
             border-radius: 5px;
             padding: 20px;
             margin-bottom: 20px;
+            position: relative;
         }
         .message {
             margin-bottom: 15px;
@@ -37,6 +38,40 @@
             gap: 10px;
             margin-bottom: 20px;
         }
+        .prompt-bubbles {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: sticky;
+            bottom: 0;
+            background-color: white;
+            padding: 10px;
+            width: 100%;
+            left: 0;
+        }
+        .prompt-bubble {
+            background-color: #007bff;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            max-width: 90%;
+            margin-bottom: 5px;
+        }
+        .prompt-bubble:hover {
+            background-color: #0069d9;
+        }
+        .github-link {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
@@ -44,10 +79,14 @@
         <h1 class="text-center mb-4">Scam Alert Chatbot</h1>
         <div class="button-container">
             <button id="resetBtn" class="btn btn-secondary">Reset Conversation</button>
+            <button id="saveChatBtn" class="btn btn-success">Save Chat History</button>
         </div>
         <div class="chat-container" id="chatContainer">
             <div class="bot-message message">
                 Hello! I'm your Scam Alert Assistant. How can I help you today?
+            </div>
+            <div class="prompt-bubbles" id="promptBubbles">
+                <!-- Prompt bubbles will be added here dynamically -->
             </div>
         </div>
         <div class="typing-indicator" id="typingIndicator">
@@ -67,6 +106,58 @@
         const chatContainer = document.getElementById('chatContainer');
         const typingIndicator = document.getElementById('typingIndicator');
         const resetBtn = document.getElementById('resetBtn');
+        window.promptBubbles = document.getElementById('promptBubbles');
+
+        // Fetch and display prompt bubbles
+        async function loadPromptBubbles() {
+            try {
+                // Get the current prompt bubbles element
+                const currentPromptBubbles = document.getElementById('promptBubbles');
+                if (!currentPromptBubbles) {
+                    console.error('Prompt bubbles container not found');
+                    return;
+                }
+                
+                // Update the global reference
+                window.promptBubbles = currentPromptBubbles;
+                
+                const response = await fetch('/get-prompts');
+                const data = await response.json();
+                
+                // Clear existing bubbles first
+                currentPromptBubbles.innerHTML = '';
+                
+                // Add each prompt as a bubble
+                data.prompts.forEach(prompt => {
+                    const bubble = document.createElement('div');
+                    bubble.className = 'prompt-bubble';
+                    bubble.textContent = prompt;
+                    bubble.addEventListener('click', () => {
+                        userInput.value = prompt;
+                        // Hide the prompt bubbles
+                        currentPromptBubbles.style.display = 'none';
+                        // Trigger form submission
+                        const submitEvent = new Event('submit', {
+                            'bubbles': true,
+                            'cancelable': true
+                        });
+                        chatForm.dispatchEvent(submitEvent);
+                    });
+                    currentPromptBubbles.appendChild(bubble);
+                });
+                
+                // Make sure the bubbles are visible
+                currentPromptBubbles.style.display = 'flex';
+                
+                // Log success
+                console.log('Prompt bubbles loaded successfully');
+            } catch (error) {
+                console.error('Error loading prompts:', error);
+            }
+        }
+
+        // Load prompt bubbles when page loads
+        loadPromptBubbles();
 
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -81,6 +172,28 @@
             typingIndicator.style.display = 'block';
 
             try {
+                // First check if there's a boilerplate response for this message
+                const boilerplateCheck = await fetch('/get-boilerplate-response', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: message }),
+                });
+                
+                const boilerplateData = await boilerplateCheck.json();
+                
+                // If there's a boilerplate response, use it instead of calling the chatbot
+                if (boilerplateData.is_boilerplate) {
+                    // Hide typing indicator
+                    typingIndicator.style.display = 'none';
+                    
+                    // Add boilerplate response to chat
+                    addMessage(boilerplateData.response, false);
+                    return;
+                }
+                
+                // Otherwise, proceed with normal chatbot request
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {
@@ -110,12 +223,52 @@
                 });
                 
                 if (response.ok) {
-                    // Clear chat container except for the welcome message
+                    // Keep only the welcome message, remove all other messages
                     chatContainer.innerHTML = `
                         <div class="bot-message message">
                             Hello! I'm your Scam Alert Assistant. How can I help you today?
                         </div>
                     `;
+                    
+                    // Create a new prompt bubbles container
+                    const newPromptBubblesDiv = document.createElement('div');
+                    newPromptBubblesDiv.id = 'promptBubbles';
+                    newPromptBubblesDiv.className = 'prompt-bubbles';
+                    
+                    // Append it to the chat container
+                    chatContainer.appendChild(newPromptBubblesDiv);
+                    
+                    // Update the global reference
+                    window.promptBubbles = newPromptBubblesDiv;
+                    
+                    // Fetch and load the prompts
+                    try {
+                        const promptsResponse = await fetch('/get-prompts');
+                        const data = await promptsResponse.json();
+                        
+                        data.prompts.forEach(prompt => {
+                            const bubble = document.createElement('div');
+                            bubble.className = 'prompt-bubble';
+                            bubble.textContent = prompt;
+                            bubble.addEventListener('click', () => {
+                                userInput.value = prompt;
+                                // Hide the prompt bubbles
+                                newPromptBubblesDiv.style.display = 'none';
+                                // Trigger form submission
+                                const submitEvent = new Event('submit', {
+                                    'bubbles': true,
+                                    'cancelable': true
+                                });
+                                chatForm.dispatchEvent(submitEvent);
+                            });
+                            newPromptBubblesDiv.appendChild(bubble);
+                        });
+                        
+                        // Make sure the bubbles are visible
+                        newPromptBubblesDiv.style.display = 'flex';
+                    } catch (promptError) {
+                        console.error('Error loading prompts:', promptError);
+                    }
                 }
             } catch (error) {
                 console.error('Error resetting conversation:', error);
@@ -126,9 +279,81 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
             messageDiv.textContent = text;
-            chatContainer.appendChild(messageDiv);
+            
+            // Get the current prompt bubbles div
+            const currentPromptBubblesDiv = document.getElementById('promptBubbles');
+            
+            if (currentPromptBubblesDiv && currentPromptBubblesDiv.parentNode === chatContainer) {
+                // If prompt bubbles div exists and is a child of the chat container,
+                // insert the message before it
+                chatContainer.insertBefore(messageDiv, currentPromptBubblesDiv);
+            } else {
+                // Otherwise, just append to the chat container
+                chatContainer.appendChild(messageDiv);
+                
+                // If we're adding a message and there's no prompt bubbles div,
+                // we should recreate it to ensure it's always available
+                if (!currentPromptBubblesDiv) {
+                    const newPromptBubblesDiv = document.createElement('div');
+                    newPromptBubblesDiv.id = 'promptBubbles';
+                    newPromptBubblesDiv.className = 'prompt-bubbles';
+                    chatContainer.appendChild(newPromptBubblesDiv);
+                    
+                    // Update the global reference
+                    window.promptBubbles = newPromptBubblesDiv;
+                    
+                    // Load the prompts
+                    loadPromptBubbles();
+                }
+            }
+            
+            // Add some bottom padding to ensure messages don't get hidden behind the prompt bubbles
+            messageDiv.style.marginBottom = '60px';
+            
+            // Scroll to the bottom
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
+
+        // Save chat history functionality
+        document.getElementById('saveChatBtn').addEventListener('click', async () => {
+            const messages = Array.from(chatContainer.children).map(msg => ({
+                text: msg.textContent,
+                isUser: msg.classList.contains('user-message')
+            }));
+
+            try {
+                const response = await fetch('/save-chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ chatHistory: messages }),
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = response.headers.get('content-disposition').split('filename=')[1];
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+                }
+            } catch (error) {
+                console.error('Error saving chat history:', error);
+                alert('Error saving chat history. Please try again.');
+            }
+        });
     </script>
+    <div class="github-link">
+        <a href="https://github.com/LiCen021/Scam_Awareness_Chatbot" target="_blank" class="text-decoration-none">
+            <svg height="32" aria-hidden="true" viewBox="0 0 16 16" version="1.1" width="32" data-view-component="true" class="octicon octicon-mark-github v-align-middle">
+                <path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path>
+            </svg>
+            View on GitHub
+        </a>
+    </div>
 </body>
 </html> 
