@@ -92,13 +92,20 @@ class RoutingAgent:
         # Format context from relevant information
         context_items = []
         for _, row in relevant_info.iterrows():
-            source_url = row.get('Source', 'Source not available')
+            source = row.get('Source', 'Source not available')
+
+            # Update source URL based on source name
+            if source == 'Macquarie Bank':
+                source_url = 'https://www.macquarie.com.au/security-and-fraud/scams/latest-scams-alerts.html'
+            elif source == 'CommBank':
+                source_url = 'https://www.commbank.com.au/support/security/latest-scams-and-security-alerts.html'
+            
             context_items.append(
-                f"Source: {source_url}\n"
+                f"Source_url: {source_url}\n"
                 f"Title: {row.get('Title', '')}\n"
                 f"Content: {row.get('Content', '')}"
             )
-        context = "\n\n".join(context_items)
+        context = "n\n".join(context_items)
         
         # Company-specific prompt
         messages = [
@@ -107,9 +114,11 @@ class RoutingAgent:
 
             Focus on:
 
-            1. Whether this company has been involved in known scams
+            1. Whether the specified company (including its full name and acronym, if provided) has been involved in known scams.
             2. Similar company names used in scams
-            3. Source url of the information
+            3. **If a company or similar name is found in the database, explicitly include the corresponding Source URL in the response.**
+            4. If there is information about the company in the context, still ask the user to provide more information so you can try to find possible red flags.
+            5. If there is no information about the company in the context, just say "No information found" and ask the user to provide more information about potential red flags.
 
             IMPORTANT: The following context information comes from the bot's database, NOT from the user. 
             Do not say "based on the information you provided" or similar phrases. Instead, refer to it as 
@@ -119,13 +128,14 @@ class RoutingAgent:
             {context}"""}
         ]
         
+        print(messages)
         # Generate response using the chatbot's LLM
         try:
             response = self.chatbot.client.chat.completions.create(
                 model="meta-llama/Llama-3.3-70B-Instruct-Turbo",
                 messages=messages,
-                max_tokens=200,
-                temperature=0.5,
+                max_tokens=300,
+                temperature=0.3,
                 stream=True
             )
             return response
@@ -137,13 +147,21 @@ class RoutingAgent:
         """Handle general situation analysis"""
         # Use RAG for general scam patterns
         relevant_info = self.chatbot.find_relevant_content(query)
-        
+        # Update source URL based on source name
+
+            
         # Format context from relevant information
         context_items = []
         for _, row in relevant_info.iterrows():
-            source_url = row.get('Source', 'Source not available')
+            source = row.get('Source', 'Source not available')
+
+            if source == 'Macquarie Bank':
+                source_url = 'https://www.macquarie.com.au/security-and-fraud/scams/latest-scams-alerts.html'
+            elif source == 'CommBank':
+                source_url = 'https://www.commbank.com.au/support/security/latest-scams-and-security-alerts.html'
+
             context_items.append(
-                f"Source: {source_url}\n"
+                f"Source_url: {source_url}\n"
                 f"Title: {row.get('Title', '')}\n"
                 f"Content: {row.get('Content', '')}"
             )
@@ -155,26 +173,24 @@ class RoutingAgent:
             {"role": "user", "content": f"""Please analyze this situation: {query}
 
             Focus on:
-            1. Identifying potential scam patterns
-            2. Specific red flags in the situation
-            3. Recommended safety steps
-            4. Similar known scam cases
+            1. Identifying potential scam patterns 
+            2. Similar known scam cases
 
             IMPORTANT: The following context information comes from the bot's database, NOT from the user. 
             Do not say "based on the information you provided" or similar phrases. Instead, refer to it as 
-            "based on my database" or "according to my records".
+            "according to my records".
 
             Context:
             {context}"""}
         ]
-        
+        print(messages)
         # Generate response using the chatbot's LLM
         try:
             response = self.chatbot.client.chat.completions.create(
                 model="meta-llama/Llama-3.3-70B-Instruct-Turbo",
                 messages=messages,
                 max_tokens=500,
-                temperature=0.5,
+                temperature=0.3,
                 stream=True
             )
             return response
@@ -206,19 +222,7 @@ class ScamChatbot:
             Your approach should be conversational and focused on gathering relevant information first.
             
             Guidelines for your responses:
-            1. If the user hasn't provided enough context, ask clarifying questions first
-            2. Only share information that's relevant to what you know about their specific situation
-            3. Keep responses concise and conversational
-            4. Don't list general red flags unless they match specific details shared by the user
-            5. Avoid overwhelming users with too much information at once
-            
-            Example approach:
-            User: "I heard about an investment from X company"
-            You: "I'd be happy to help you evaluate this opportunity. Could you tell me more about how they contacted you and what they're offering?"
-            
-            Citation instructions:
-            1. Only cite sources when providing specific information
-            2. Keep citations minimal and relevant to the specific discussion"""
+            1. Keep responses concise and conversational"""
         }
         # Initialize the routing agent
         self.router = RoutingAgent(self)

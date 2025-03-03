@@ -161,3 +161,8 @@ Make sure you have a valid Together AI API key with access to:
 
 - togethercomputer/m2-bert-80M-2k-retrieval (for embeddings)
 - meta-llama/Llama-3.3-70B-Instruct-Turbo (for text generation)
+
+## Future
+
+Improve prompt for handle situation query so that it can ask user more questions about potential red flag
+Improve using RAG on different databases based on routing results
