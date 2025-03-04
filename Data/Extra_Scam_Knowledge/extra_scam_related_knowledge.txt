@@ -15,8 +15,6 @@ If users notice there are some reputable looking news articles about the company
 Prompt the user to check the author of these articles, it's usually the company themselves or it's pieces written in collaboration with the company.
 These articles are usually paid for articles with very little due diligence.
 
-If you are given Upon searching you can see that the only Michael Fletcher on the register works for Fletcher Financial, and has done since 2013, which operates under AMP's AFSL license.
-
 https://service.asic.gov.au/search/ can be used to search the ASIC financial advisers register.
 
 Red flags for Scam related knowledge:

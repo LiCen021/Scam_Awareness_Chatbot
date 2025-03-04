@@ -164,5 +164,4 @@ Make sure you have a valid Together AI API key with access to:
 
 ## Future
 
-Improve prompt for handle situation query so that it can ask user more questions about potential red flag
-Improve using RAG on different databases based on routing results
+- Improve web scrapper for other banks scam alerts information

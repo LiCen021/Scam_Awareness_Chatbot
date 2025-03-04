@@ -105,6 +105,7 @@ class RoutingAgent:
                 f"Title: {row.get('Title', '')}\n"
                 f"Content: {row.get('Content', '')}"
             )
+        
         context = "n\n".join(context_items)
         
         # Company-specific prompt
@@ -117,8 +118,11 @@ class RoutingAgent:
             1. Whether the specified company (including its full name and acronym, if provided) has been involved in known scams.
             2. Similar company names used in scams
             3. **If a company or similar name is found in the database, explicitly include the corresponding Source URL in the response.**
-            4. If there is information about the company in the context, still ask the user to provide more information so you can try to find possible red flags.
-            5. If there is no information about the company in the context, just say "No information found" and ask the user to provide more information about potential red flags.
+            4. Whether there is information about the company in the context, still ask the user to provide more information, 
+            so that you can verifying key legitimacy factors **one item at a time** if it has not been mentioned in the context, including:
+                - Does the business provide a verifiable **physical address**?
+                - Has the business been **featured in reputable sources** (e.g., government databases, trusted review sites, financial institutions)?
+                - What **financial returns** does the business claim, and do they use word such as "guaranteed" or "risk free"?
 
             IMPORTANT: The following context information comes from the bot's database, NOT from the user. 
             Do not say "based on the information you provided" or similar phrases. Instead, refer to it as 
@@ -147,9 +151,6 @@ class RoutingAgent:
         """Handle general situation analysis"""
         # Use RAG for general scam patterns
         relevant_info = self.chatbot.find_relevant_content(query)
-        # Update source URL based on source name
-
-            
         # Format context from relevant information
         context_items = []
         for _, row in relevant_info.iterrows():
@@ -165,6 +166,11 @@ class RoutingAgent:
                 f"Title: {row.get('Title', '')}\n"
                 f"Content: {row.get('Content', '')}"
             )
+        
+        # Add extra scam knowledge to context
+        if self.chatbot.extra_knowledge:
+            context_items.append(f"Additional Scam Knowledge:\n{self.chatbot.extra_knowledge}")
+        
         context = "\n\n".join(context_items)
         
         # General scam pattern prompt
@@ -175,6 +181,10 @@ class RoutingAgent:
             Focus on:
             1. Identifying potential scam patterns 
             2. Similar known scam cases
+            3. Verifying key legitimacy factors **one item at a time** if it has not been mentioned in the context, including:
+                - Does the business provide a verifiable **physical address**?
+                - Has the business been **featured in reputable sources** (e.g., government databases, trusted review sites, financial institutions)?
+                - What **financial returns** does the business claim, and do they use word such as "guaranteed" or "risk free"?
 
             IMPORTANT: The following context information comes from the bot's database, NOT from the user. 
             Do not say "based on the information you provided" or similar phrases. Instead, refer to it as 
