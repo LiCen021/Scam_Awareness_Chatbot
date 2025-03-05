@@ -135,18 +135,7 @@ The application will be available at: https://your-app-name.herokuapp.com
   - Routes general scam pattern queries to situation analysis handler
   - Uses LLM-based detection for accurate query classification
 
-- **Boilerplate Response System**:
-
-  - Provides immediate responses for common queries
-  - Guides users to provide specific information when needed
-  - Reduces response time for frequently asked questions
-
-- **Enhanced User Interface**:
-
-  - Interactive prompt bubbles for common questions
-  - Color-coded messages (blue for user, light gray for bot)
-  - Conversation history saving functionality
-  - Reset conversation option
+See below for the routing flow chart(Routing Agent Flow Chart.jpg)
 
 - **RAG Implementation**:
   - Uses Together AI's m2-bert-80M-2k-retrieval model for embeddings
