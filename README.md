@@ -135,7 +135,8 @@ The application will be available at: https://your-app-name.herokuapp.com
   - Routes general scam pattern queries to situation analysis handler
   - Uses LLM-based detection for accurate query classification
 
-See below for the routing flow chart(Routing Agent Flow Chart.jpg)
+See below for the routing flow chart
+![Routing Agent Flow Chart](Routing_Agent_Flow_Chart.jpg)
 
 - **RAG Implementation**:
   - Uses Together AI's m2-bert-80M-2k-retrieval model for embeddings
