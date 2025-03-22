@@ -199,6 +199,52 @@ def scrape_nab():
                     ])
     return scam_alerts
 
+def scrape_anz():
+    url = "https://www.anz.com.au/security/latest-scams-australia/"
+    response = requests.get(url)
+    response.raise_for_status()
+
+    soup = BeautifulSoup(response.text, 'html.parser')
+    scam_alerts = []
+    seen_titles = set()
+
+    # Find all column containers
+    text_sections = soup.find_all('div', class_= 'columns')
+    print(f"Found {len(text_sections)} column containers in ANZ")
+    
+    for container in text_sections:
+        # Find columns within this container - note the changed class
+        
+        columns = container.find_all('div', class_='container__items container__aside none none')
+        for column in columns:
+            current_alert = {}
+            # # Find the bodycopy div that contains the content
+            # bodycopy = column.find('div', class_='bodycopy')
+            # if not bodycopy:
+            #     continue
+            
+            # Find title/date from h2
+            title_tag = column.find('h3')
+            title_text = title_tag.get_text(strip=True)
+            # Check if title contains a date
+            current_alert['title'] = title_text
+            seen_titles.add(title_text)
+            
+            # If we found a valid title, extract content
+            if 'title' in current_alert:
+                # Get all paragraphs
+                paragraphs = column.find_all('p')
+                content = ' '.join(p.get_text(strip=True) for p in paragraphs)
+                if content:
+                    current_alert['content'] = content
+                    
+                    # Add to scam_alerts if we have both title and content
+                    scam_alerts.append([
+                        current_alert['title'],
+                        current_alert['content'],
+                        "ANZ"
+                    ])
+    return scam_alerts
 
 def main():
     all_scam_alerts = []
@@ -231,6 +277,13 @@ def main():
     all_scam_alerts.extend(nab_alerts)
     print(f"Found {len(nab_alerts)} unique scam alerts from NAB")
     
+    # Scrape ANZ
+    print("\nScraping ANZ alerts...")
+    anz_alerts = scrape_anz()
+    anz_alerts = [[f"ANZ_{str(i+1).zfill(4)}", *alert] for i, alert in enumerate(anz_alerts)]
+    all_scam_alerts.extend(anz_alerts)
+    print(f"Found {len(anz_alerts)} unique scam alerts from ANZ")
+
     # Save to CSV
     current_dir = os.path.dirname(os.path.abspath(__file__))
     csv_filename = os.path.join(current_dir, 'scam_alerts.csv')
